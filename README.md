@@ -100,11 +100,10 @@ Docker 映像檔是一個模板，用來重複產生容器實體。例如：一�
 準備好目標程式後就可以來開始打包了，打包的第一步就是要撰寫 Dockerfile。回顧上面的段落所提到的，Dockerfile 透過撰寫命令行告訴 Docker 應該要如何打包我的程式。以資料夾中的 `Dockerfile` 為例：
 
 ```dockerfile
-FROM node:10.15.3-alpine
+FROM node:16
 WORKDIR /app
-ADD . /app
+COPY . /app
 RUN npm install
-EXPOSE 3000
 CMD node index.js
 ```
 
@@ -115,17 +114,13 @@ CMD node index.js
 
   在這個 Docker 的環境之中建立一個工作目錄 `/app`
 
-- `ADD . /app`
+- `COPY . /app`
 
-  把跟 Dockerfile 同個資料夾的城市加到剛建立的工作目錄 `/app` 中
+  把跟 Dockerfile 同個資料夾的所有內容加到剛建立的工作目錄 `/app` 中
 
 - `RUN npm install`
 
   運行 `npm install`，讓 npm 透過讀取 `package.json` 下載相依的 package
-
-- `EXPOSE 3000`
-
-  指定 container 對外開放的 port
 
 - `CMD node index.js`
 
@@ -138,10 +133,10 @@ CMD node index.js
 終於把所有預備檔案準備好後，我們可以在資料夾內透過指令 `docker build`
 
 ```
-docker build . -t docker-demo-app
+docker build -t "docker-demo-app" .
 ```
 
-去建立 Docker Image 並為這個 Image 加上 tag `docker-demo-app`。
+去建立 Docker Image 並為這個 Image 加上 tag `docker-demo-app:v1.0.0`。
 
 然後我們可以再透過指令
 
@@ -165,7 +160,7 @@ docker-demo-app     latest              733776b1db0a        8 minutes ago       
 所以我們輸入指令
 
 ```
-docker run -p 3000:3000 -it 733776b1db0a
+docker run -p 3000:3000 -it docker-demo-app:v1.0.0
 ```
 
 透過 `docker run`，我們實際把 Image 執行成 Container 了！這時我們看到 terminal 顯示 `listening on port 3000` 後，用瀏覽器打開 [localhost:3000](http://localhost:3000)，就可以迎接一隻 Docker 鯨魚。
